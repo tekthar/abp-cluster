@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpCluster: what an ABP site needs to run on several servers. A lock all the servers share (a PostgreSQL advisory lock), taken to wait its turn or tried to skip a round, and ABP's own distributed lock on it, so ABP's outbox, background jobs and workers run on one server at a time.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.DistributedLocking.Abstractions" Version="$(AbpVersion)" />
+    <PackageReference Include="Npgsql" Version="10.0.2" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AbpCluster/AbpCluster.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AbpCluster.Tests/AbpCluster.Tests.csproj" />
+  </Folder>
+</Solution>
