@@ -5,6 +5,10 @@ distributed lock on it.
 
 > **Preview.** 0.x versions may change their API in any minor version (SemVer). Pin an exact version.
 
+> **Not a Volosoft project.** [ABP Framework](https://abp.io) is made and owned by [Volosoft](https://volosoft.com).
+> AbpCluster is an independent enhancement that works on ABP: this repository and its packages don't belong to
+> Volosoft, and aren't affiliated with or endorsed by them.
+
 ## What it does
 
 - **`IClusterLocks`**: a lock every server shares, so one server at a time does some work. `TryTakeAsync` gives the
