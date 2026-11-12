@@ -6,6 +6,10 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-12
+
+Two sites, from the first product that ran them, proven by moving it onto the package.
+
 ### Added
 
 - `AbpCluster.Sites`, a second package: two sites, one active and one standby that runs and takes over when its
