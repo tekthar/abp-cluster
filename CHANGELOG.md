@@ -6,6 +6,8 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-12
+
 ### Fixed
 
 - `AbpCluster.Sites`' messages name settings as the host configures them (`SitesOptions.Section`, set by
