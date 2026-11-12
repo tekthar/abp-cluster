@@ -334,7 +334,7 @@ public sealed class SitesDatabaseTests : IAsyncLifetime
         await Assert.ThrowsAsync<Volo.Abp.UserFriendlyException>(() => admin.RemoveAsync("hq", default));
 
         SitesOverviewDto overview = await admin.GetAsync(default);
-        Assert.Equal(("hq", "hq", 2), (overview.Self, overview.Active!.Site, overview.Sites.Count));
+        Assert.Equal(("hq", "hq", 2), (overview.ThisSite, overview.Active!.Site, overview.Sites.Count));
         await Assert.ThrowsAsync<Volo.Abp.UserFriendlyException>(() => admin.SwitchoverAsync("dr", default));
         await admin.RemoveAsync("dr", default);
         Assert.Single((await admin.GetAsync(default)).Sites);
@@ -431,6 +431,28 @@ public sealed class SitesDatabaseTests : IAsyncLifetime
         }
 
         Assert.Null((await ActiveAsync())!.HandingTo);
+    }
+
+    [Theory]
+    [InlineData(SiteMode.Replaced, SiteStates.Replaced)]
+    [InlineData(SiteMode.Foreign, SiteStates.Foreign)]
+    [InlineData(SiteMode.HandingOver, SiteStates.HandingOver)]
+    public async Task The_site_host_starts_in_every_mode_and_says_its_state(SiteMode mode, string said)
+    {
+        SitesOptions Hq(IConfiguration _) => Options("hq", o =>
+        {
+            o.WatchSeconds = 3600;
+            o.ConfigureHostBuilder = builder => builder.WebHost.UseTestServer();
+        });
+        ActiveSiteDto active = new("dr", 2, 2, DateTimeOffset.UtcNow, SiteReasons.StoodDown, HandingTo: mode == SiteMode.HandingOver ? "dr" : null);
+        (WebApplication app, SiteWatch _) = SiteHost.Build([], new SiteDecision(mode, new SiteDatabaseDto(false, null, null, null, null), active), Hq);
+        await using (app)
+        {
+            await app.StartAsync();
+            HttpResponseMessage state = await app.GetTestClient().GetAsync("/api/site");
+            Assert.Equal((HttpStatusCode.ServiceUnavailable, said), (state.StatusCode, (await state.Content.ReadFromJsonAsync<SiteStateDto>())!.State));
+            await app.StopAsync();
+        }
     }
 
     private async Task SaveSiteAsync(string name, string address)

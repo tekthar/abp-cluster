@@ -60,8 +60,6 @@ public sealed class SiteStore(SitesOptions options)
                 "At" timestamptz NOT NULL, "Note" varchar(500) NULL);
             CREATE TABLE IF NOT EXISTS {_s}.site_lag_spells (
                 "Site" varchar(32) PRIMARY KEY, "Since" timestamptz NOT NULL, "Told" boolean NOT NULL DEFAULT false);
-            CREATE TABLE IF NOT EXISTS {_s}.site_signing_key (
-                "Id" integer PRIMARY KEY, "Key" bytea NOT NULL, "CreatedAt" timestamptz NOT NULL);
             """, connection);
         await make.ExecuteNonQueryAsync(cancellationToken);
     }
@@ -134,7 +132,7 @@ public sealed class SiteStore(SitesOptions options)
         {
             changes.Add(new SiteChangeDto(row.GetInt64(0), row.GetString(1), row.IsDBNull(2) ? null : row.GetString(2),
                 row.IsDBNull(3) ? null : row.GetInt32(3), row.GetString(4), row.IsDBNull(5) ? null : row.GetInt64(5),
-                Utc(row.GetDateTime(6)), row.IsDBNull(7) ? null : row.GetString(7)));
+                DateTime.SpecifyKind(row.GetDateTime(6), DateTimeKind.Utc), row.IsDBNull(7) ? null : row.GetString(7)));
         }
 
         return changes;
@@ -366,12 +364,15 @@ public sealed class SiteStore(SitesOptions options)
     }
 
     /// <summary>
-    /// The installation's signing key: made on the first start of a writable database, then read; it reaches the other
-    /// sites with the database.
+    /// The default signing key (<see cref="DatabaseSiteSigningKey"/>): its table and the key made on the first start of a
+    /// writable database, then read; it reaches the other sites with the database. A host with its own key store has no
+    /// such table.
     /// </summary>
     public async Task<byte[]> SigningKeyAsync(NpgsqlConnection connection, CancellationToken cancellationToken)
     {
         await using (NpgsqlCommand make = new($"""
+            CREATE TABLE IF NOT EXISTS {_s}.site_signing_key (
+                "Id" integer PRIMARY KEY, "Key" bytea NOT NULL, "CreatedAt" timestamptz NOT NULL);
             INSERT INTO {_s}.site_signing_key ("Id", "Key", "CreatedAt") VALUES (1, @key, now()) ON CONFLICT ("Id") DO NOTHING
             """, connection))
         {

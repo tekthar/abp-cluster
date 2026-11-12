@@ -90,25 +90,25 @@ public sealed record ReadinessDto(string Status, string? Reason);
 public sealed record SiteRecord(string Name, string Label, string Address);
 
 /// <summary>A change of the active site, as the history keeps it.</summary>
-public sealed record SiteChangeDto(long Epoch, string Site, string? PreviousSite, int? Timeline, string Reason, long? KeyGap, DateTimeOffset At, string? Note);
+public sealed record SiteChangeDto(long Epoch, string Site, string? PreviousSite, int? Timeline, string Reason, long? KeyGap, DateTime At, string? Note);
 
 /// <summary>
 /// A site as an admin sees it: its record, whether it's this server's, its state as read now (or why it couldn't be),
-/// how far a standby of this database is behind it, and whether its settings match this one's.
+/// how many bytes a standby of this database is behind it, and whether its settings match this one's.
 /// </summary>
 public sealed record SiteDto(
-    string Name, string Label, string Address, bool Self, SiteStateDto? Live, string? Error, long? BehindBytes = null, bool? SettingsMatch = null);
+    string Name, string Label, string Address, bool IsThis, SiteStateDto? Live, string? Error, long? Behind = null, bool? SettingsMatch = null);
 
 /// <summary>
 /// The sites at a glance: this server's site, which is active, each site, the latest changes, the key gap, whether a
 /// break-glass key is set (and set but unreadable), and how far behind a standby may be.
 /// </summary>
 public sealed record SitesOverviewDto(
-    string? Self, ActiveSiteDto? Active, List<SiteDto> Sites, List<SiteChangeDto> Changes, long KeyGap, bool BreakGlassSet,
-    long LagWarnBytes, bool BreakGlassUnreadable);
+    string? ThisSite, ActiveSiteDto? Active, List<SiteDto> Sites, List<SiteChangeDto> Changes, long KeyGap, bool BreakGlassSet,
+    long LagWarnBytes, bool BreakGlassUnreadable = false);
 
 /// <summary>A site added: its name, a label, and the address the other sites read its state at.</summary>
-public sealed record SiteInput(string? Name, string? Label, string? Address);
+public sealed record SiteInput(string Name, string? Label, string? Address);
 
 /// <summary>A site's label and address changed.</summary>
 public sealed record SiteUpdateInput(string? Label, string? Address);

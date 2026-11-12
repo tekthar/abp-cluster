@@ -92,10 +92,11 @@ public sealed partial class SitesOptions
     public List<SiteTakeoverStep> OnTakeover { get; } = [];
 
     /// <summary>
-    /// What changed on a replaced site after the other took over (the host's own tables), for operators to export
-    /// before its database is rebuilt. Unset: the site host doesn't offer it.
+    /// What changed on a replaced site after the other took over (its row says which, and since when), from the host's own
+    /// tables, for operators to export before its database is rebuilt; answered as it is. Unset: the site host doesn't
+    /// offer it.
     /// </summary>
-    public Func<NpgsqlConnection, DateTimeOffset, CancellationToken, Task<object>>? ChangesSince { get; set; }
+    public Func<NpgsqlConnection, ActiveSiteDto, CancellationToken, Task<object>>? ChangesSince { get; set; }
 
     /// <summary>The settings fingerprint, when the host makes its own; else one from <see cref="SharedSettings"/> and <see cref="SharedSecrets"/>.</summary>
     public Func<IConfiguration, string>? Fingerprint { get; set; }

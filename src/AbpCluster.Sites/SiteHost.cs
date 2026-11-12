@@ -75,7 +75,7 @@ public static class SiteHost
         };
 
         // The health check stays the liveness probe: the process is alive.
-        app.MapGet(options.HealthPath, () => Results.Json(new { status = "Healthy" }));
+        app.MapGet(options.HealthPath, () => Results.Json(new { status = "Healthy", checks = Array.Empty<object>() }));
         // Ready while the database answers, so the site's web reaches this server and shows what it is.
         app.MapGet(options.ReadyPath, (SiteWatch watch) => watch.Database is null
             ? Results.Json(new ReadinessDto("DatabaseUnreachable", watch.Error), statusCode: StatusCodes.Status503ServiceUnavailable)
@@ -179,7 +179,7 @@ public static class SiteHost
 
                 await using NpgsqlConnection connection = new(connectionString);
                 await connection.OpenAsync(cancellationToken);
-                return Results.Json(new { activeSite = active.Site, since = active.Since, changes = await changesSince(connection, active.Since, cancellationToken) });
+                return Results.Json(await changesSince(connection, active, cancellationToken));
             });
         }
 
@@ -193,13 +193,14 @@ public static class SiteHost
             } } },
             statusCode: StatusCodes.Status503ServiceUnavailable));
 
+        // Each message names the site and the other site once, in that order: a name said twice would need its value twice.
         string? other = decision.Mode == SiteMode.HandingOver ? decision.Active?.HandingTo : decision.Active?.Site;
         app.Logger.LogWarning(decision.Mode switch
         {
             SiteMode.Standby => "The database is a replica: this server runs as {Site}'s standby, and starts the app when the database is promoted ({Other} is active).",
-            SiteMode.Replaced => "{Site} was replaced by {Other}: this server serves no one until its database is rebuilt as {Other}'s replica.",
+            SiteMode.Replaced => "{Site} was replaced by {Other}: this server serves no one until its database is rebuilt as the active site's replica.",
             SiteMode.HandingOver => "{Site} hands over to {Other}: its apps stay stopped, and it serves no one.",
-            _ => "This database names {Other} as its active site, on the same timeline: {Site} won't write to it.",
+            _ => "{Site} won't write to this database: it names {Other} as its active site, on the same timeline.",
         }, site ?? "the site", other);
         return (app, app.Services.GetRequiredService<SiteWatch>());
     }
