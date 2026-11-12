@@ -78,6 +78,38 @@ beside a newer one's schema and seed.
 Before the container is built, `ClusterLocks.TakeAsync(connectionString, key, ct)` and `TryTakeAsync` take a lock by
 its key as it is (no prefix).
 
+## Two sites (AbpCluster.Sites)
+
+For an organization that runs at a headquarters and a disaster-recovery site, both up, so that when one is lost the
+other serves within a minute of someone deciding. PostgreSQL's own streaming replication carries the data, and the
+storage's own replication the files; the package watches both and never copies them.
+
+- **One active site, one standby that runs.** A server names its site (`Sites:Name`, say `hq` or `dr`). Before it
+  touches its database it decides what to run (`SiteStart`): the app while its site is active, else the site host,
+  which is safe on a read-only replica: its health, readiness and state, and nothing that writes or calls out.
+- **The active site is a row with an epoch** that grows at each change, and the database timeline it became active on.
+  A standby whose database turns writable on a newer timeline was promoted: its servers write the new row and take
+  over by themselves. A writable database on the same timeline naming another site is that site's, and nothing writes
+  to it.
+- **Your numbers move past the lost seconds.** `SitesOptions.OnTakeover` runs in the takeover's transaction with a key
+  gap (1,000 by default): move record keys, invoice numbers or anything else you number, so ones the lost site gave out
+  in the seconds the replica never saw aren't given again.
+- **Fencing.** The running app's guard reads every other site's state every few seconds; a site signed with the
+  installation's key as active at a higher epoch makes this one stand down, write that down, and serve no one.
+- **Promotion is a person's decision**, with a break-glass key the operators keep (its SHA-256 in `Sites:BreakGlassKeyHash`,
+  as no one can sign in to a read-only site), or the database's own tooling, which the site then follows.
+- **A planned switchover loses nothing.** The active site hands over: its apps stop, its last write waits until none of
+  them holds the site's lock, and the standby promotes its own database and takes over with no key gap.
+- **Readiness tells the truth**: a server's readiness is 200 when it can serve (as the app or the site host); the site's
+  state is 200 only on the active site, for a global balancer or DNS failover to follow.
+- **The active site watches its standbys** and tells its admins (`ISiteAlerts`) once a spell when one lags or can't be
+  read. `SitesAdmin` lists the sites with their states, adds, changes and removes them, and starts a switchover; your
+  controller checks who may.
+
+Use it: run your app through `SiteRunner.RunAsync`, add `AbpClusterSitesModule` and `services.AddClusterSites(options)`,
+call `SiteGuard.CheckAtStartAsync` after your migrations, and map `MapClusterSites()`. The guide is `docs/sites.md`, and
+the decisions are in `docs/adr/0002-two-sites.md`.
+
 ## What it doesn't do
 
 - It doesn't notice when a holder's connection breaks while its work runs: the database lets the lock go, another

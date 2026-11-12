@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpCluster.Sites: two sites for an ABP site on .NET 10 and PostgreSQL, one active and one standby that runs and takes over. The standby's servers start safely on a read-only replica and take over once its database is promoted; a replaced site stands down; operators promote with a break-glass key; a planned switchover loses nothing. PostgreSQL's own replication carries the data.</Description>
+    <PackageTags>abp;cluster;disaster-recovery;standby;failover;switchover;replication;postgresql;high-availability</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Volo.Abp.Core" Version="$(AbpVersion)" />
+    <PackageReference Include="Npgsql" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AbpCluster\AbpCluster.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbpCluster.Tests" />
+  </ItemGroup>
+
+</Project>

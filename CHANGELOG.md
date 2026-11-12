@@ -6,6 +6,16 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `AbpCluster.Sites`, a second package: two sites, one active and one standby that runs and takes over when its
+  database is promoted (ADR 0002, `docs/sites.md`). `SiteStart` decides what a server runs; `SiteHost` serves a standby,
+  a replaced site or a site handing over safely on a replica; `SiteGuard` claims, fences and stands down;
+  `SiteState` and `MapClusterSites` answer readiness and the signed state; `SitesAdmin` lists and changes the sites and
+  starts a planned switchover; `SiteLagWatch` tells `ISiteAlerts` of a lagging standby; `SiteRunner` is the start-up
+  loop. A host's own parts are seams: `OnTakeover`, `ChangesSince`, `ISiteAfterTakeover`, `ISiteSigningKey`, the
+  shared settings' fingerprint, paths, error codes, schema and lock prefix.
+
 ## [0.1.0] - 2026-11-11
 
 The first release: the cluster lock three products kept their own copies of, as one package.

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/AbpCluster/AbpCluster.csproj" />
+    <Project Path="src/AbpCluster.Sites/AbpCluster.Sites.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AbpCluster.Tests/AbpCluster.Tests.csproj" />
