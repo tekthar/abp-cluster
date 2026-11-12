@@ -54,7 +54,7 @@ public sealed class SiteGuard(
         // Said now, while the site is active: the day it's a standby, its page would take no key.
         if (new BreakGlass(options.BreakGlassKeyHash).Unreadable)
         {
-            logger.LogWarning("Sites:BreakGlassKeyHash isn't a SHA-256 in hex (64 hex characters): this server takes no break-glass key.");
+            logger.LogWarning("{Setting} isn't a SHA-256 in hex (64 hex characters): this server takes no break-glass key.", options.Setting("BreakGlassKeyHash"));
         }
 
         await using NpgsqlConnection connection = new(_connectionString);

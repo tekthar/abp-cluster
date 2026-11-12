@@ -52,7 +52,7 @@ public static class SiteHost
         BreakGlass breakGlass = new(options.BreakGlassKeyHash);
         if (breakGlass.Unreadable)
         {
-            app.Logger.LogWarning("Sites:BreakGlassKeyHash isn't a SHA-256 in hex (64 hex characters): this server takes no break-glass key.");
+            app.Logger.LogWarning("{Setting} isn't a SHA-256 in hex (64 hex characters): this server takes no break-glass key.", options.Setting("BreakGlassKeyHash"));
         }
 
         string settings = SiteFingerprint.Of(configuration, options);
@@ -69,7 +69,7 @@ public static class SiteHost
         {
             null => null,
             BreakGlassRefusal.NoKey => Error(StatusCodes.Status403Forbidden, "NoBreakGlass",
-                "This server has no break-glass key: set Sites:BreakGlassKeyHash to the SHA-256 of one, in hex."),
+                $"This server has no break-glass key: set {options.Setting("BreakGlassKeyHash")} to the SHA-256 of one, in hex."),
             BreakGlassRefusal.TooMany => Error(StatusCodes.Status429TooManyRequests, "TooManyKeys", "Too many wrong keys: wait a quarter of an hour."),
             _ => Error(StatusCodes.Status403Forbidden, "WrongBreakGlass", "That isn't this site's break-glass key."),
         };

@@ -98,6 +98,8 @@ public sealed class SitesUnitTests
         SitesOptions options = SitesOptions.From(configuration, "Site");
         Assert.Equal(("dr", 5000L, 3, true), (options.Name, options.KeyGap, options.GuardSeconds, options.ForceTakeover));
         Assert.Equal(["Server:PublicUrl"], options.SharedSettings);
+        Assert.Equal(("Site", "Site:BreakGlassKeyHash"), (options.Section, options.Setting("BreakGlassKeyHash")));
+        Assert.Equal("Sites:Name", SitesOptions.From(configuration).Setting("Name"));
         Assert.Equal("Host=db", options.ConnectionStringFrom(configuration));
         Assert.Null(SitesOptions.From(new ConfigurationBuilder().Build()).Name);
         Assert.Throws<InvalidOperationException>(() => new SiteStore(new SitesOptions { Schema = "x; DROP TABLE y" }));
@@ -451,6 +453,28 @@ public sealed class SitesDatabaseTests : IAsyncLifetime
             await app.StartAsync();
             HttpResponseMessage state = await app.GetTestClient().GetAsync("/api/site");
             Assert.Equal((HttpStatusCode.ServiceUnavailable, said), (state.StatusCode, (await state.Content.ReadFromJsonAsync<SiteStateDto>())!.State));
+            await app.StopAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Messages_name_settings_as_the_host_configures_them()
+    {
+        SitesOptions Hq(IConfiguration _) => Options("hq", o =>
+        {
+            o.Section = "Site";
+            o.WatchSeconds = 3600;
+            o.ConfigureHostBuilder = builder => builder.WebHost.UseTestServer();
+        });
+        SiteDecision standby = new(SiteMode.Standby, new SiteDatabaseDto(true, null, 0, "0/1", "0/1"), null);
+        (WebApplication app, SiteWatch _) = SiteHost.Build([], standby, Hq);
+        await using (app)
+        {
+            await app.StartAsync();
+            HttpResponseMessage refused = await app.GetTestClient().PostAsJsonAsync("/api/site/promote", new PromoteInput("any", "hq"));
+            using JsonDocument body = JsonDocument.Parse(await refused.Content.ReadAsStringAsync());
+            Assert.Equal("This server has no break-glass key: set Site:BreakGlassKeyHash to the SHA-256 of one, in hex.",
+                body.RootElement.GetProperty("error").GetProperty("message").GetString());
             await app.StopAsync();
         }
     }

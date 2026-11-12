@@ -6,6 +6,12 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `AbpCluster.Sites`' messages name settings as the host configures them (`SitesOptions.Section`, set by
+  `SitesOptions.From`): a host reading its options from `Site` is told to set `Site:BreakGlassKeyHash`, not
+  `Sites:BreakGlassKeyHash`, which it would have set to no effect when its standby needed promoting.
+
 ## [0.2.0] - 2026-11-12
 
 Two sites, from the first product that ran them, proven by moving it onto the package.

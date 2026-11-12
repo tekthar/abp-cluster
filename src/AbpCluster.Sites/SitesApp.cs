@@ -301,7 +301,7 @@ public sealed partial class SitesAdmin(IConfiguration configuration, SitesOption
     /// </summary>
     public async Task<SiteDto> SwitchoverAsync(string to, CancellationToken cancellationToken)
     {
-        string self = options.Name ?? throw new UserFriendlyException("This server has no site name (Sites:Name): there's nothing to switch over from.");
+        string self = options.Name ?? throw new UserFriendlyException($"This server has no site name ({options.Setting("Name")}): there's nothing to switch over from.");
         await using NpgsqlConnection connection = new(ConnectionString);
         await connection.OpenAsync(cancellationToken);
         ActiveSiteDto? active = await _store.ReadActiveAsync(connection, cancellationToken);
@@ -347,7 +347,7 @@ public sealed partial class SitesAdmin(IConfiguration configuration, SitesOption
         string name = (input.Name ?? "").Trim().ToLowerInvariant();
         if (!SiteName().IsMatch(name))
         {
-            throw new UserFriendlyException("A site's name is what its servers' Sites:Name says: lower-case letters, digits and hyphens, up to 32.");
+            throw new UserFriendlyException($"A site's name is what its servers' {options.Setting("Name")} says: lower-case letters, digits and hyphens, up to 32.");
         }
 
         SiteRecord site = new(name, Label(input.Label, name), Address(input.Address));

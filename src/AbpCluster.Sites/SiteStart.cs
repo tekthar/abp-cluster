@@ -95,7 +95,7 @@ public static class SiteStart
         bool handedOver = active.HandingTo == site && active.HandingPhase == HandoverPhases.Ready;
         long gap = handedOver ? 0 : Math.Max(0, options.KeyGap);
         string note = (handedOver ? $"{active.Site} handed over to {site}. " : "")
-            + (PromotionNote ?? (promoted ? $"Its database was promoted (timeline {active.Timeline} to {timeline})." : "Sites:ForceTakeover was set."));
+            + (PromotionNote ?? (promoted ? $"Its database was promoted (timeline {active.Timeline} to {timeline})." : $"{options.Setting("ForceTakeover")} was set."));
         bool tookOver = false;
         ActiveSiteDto? after = await store.ChangeAsync(connection, current =>
         {

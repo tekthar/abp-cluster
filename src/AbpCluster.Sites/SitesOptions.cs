@@ -16,6 +16,9 @@ public sealed partial class SitesOptions
 {
     public const string DefaultSection = "Sites";
 
+    /// <summary>The configuration section these options came from, which messages name settings by ("Site:BreakGlassKeyHash").</summary>
+    public string Section { get; set; } = DefaultSection;
+
     /// <summary>This server's site (<c>hq</c>, <c>dr</c>). Unset: the server is a site of its own and none of this runs.</summary>
     public string? Name { get; set; }
 
@@ -112,6 +115,7 @@ public sealed partial class SitesOptions
     {
         SitesOptions options = new();
         configuration.GetSection(section).Bind(options);
+        options.Section = section;
         options.Name = string.IsNullOrWhiteSpace(options.Name) ? null : options.Name.Trim();
         return options;
     }
@@ -123,7 +127,10 @@ public sealed partial class SitesOptions
     /// <summary>The schema, quoted for SQL; refused when it isn't a plain lower-case name.</summary>
     internal string QuotedSchema => SchemaName().IsMatch(Schema)
         ? $"\"{Schema}\""
-        : throw new InvalidOperationException($"Sites:Schema \"{Schema}\" isn't a plain name (lower-case letters, digits and _).");
+        : throw new InvalidOperationException($"{Setting("Schema")} \"{Schema}\" isn't a plain name (lower-case letters, digits and _).");
+
+    /// <summary>A setting's full name as this host configures it: <c>{Section}:{key}</c>.</summary>
+    public string Setting(string key) => $"{Section}:{key}";
 
     /// <summary>A lock's key, as the database hashes it.</summary>
     internal string LockKey(string name) => $"hashtextextended('{(LockPrefix + name).Replace("'", "''", StringComparison.Ordinal)}', 0)";
