@@ -262,7 +262,9 @@ public sealed class SitesDatabaseTests : IAsyncLifetime
             Assert.False(await store.ReadyHandoverAsync(connection, default));
         }
 
-        Assert.True(await store.ReadyHandoverAsync(connection, default));
+        // PostgreSQL lets a closed session's locks go a moment after the client returns; the site host's watch tries
+        // again every couple of seconds, so the test gives it as long.
+        Assert.True(await EventuallyAsync(() => store.ReadyHandoverAsync(connection, default)));
         Assert.Equal(HandoverPhases.Ready, (await ActiveAsync())!.HandingPhase);
 
         List<SiteTakeover> told = [];
@@ -477,6 +479,19 @@ public sealed class SitesDatabaseTests : IAsyncLifetime
                 body.RootElement.GetProperty("error").GetProperty("message").GetString());
             await app.StopAsync();
         }
+    }
+
+    private static async Task<bool> EventuallyAsync(Func<Task<bool>> condition)
+    {
+        for (DateTime until = DateTime.UtcNow.AddSeconds(5); DateTime.UtcNow <= until; await Task.Delay(100))
+        {
+            if (await condition())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task SaveSiteAsync(string name, string address)
