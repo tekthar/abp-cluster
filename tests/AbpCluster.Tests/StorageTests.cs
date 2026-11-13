@@ -349,7 +349,8 @@ public sealed class StorageAppTests : IDisposable
 
         StorageTestDto test = Assert.Single(await admin.TestAsync(default));
         Assert.Equal(("things", true, (string?)null), (test.Store, test.Ok, test.Error));
-        Assert.Empty(Directory.EnumerateFiles(Path.Combine(Current, "host", "things"), "*", SearchOption.AllDirectories));
+        // Nothing left behind: no file, and no folder of the test's own.
+        Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(Current, "host", "things"), "*", SearchOption.AllDirectories));
 
         StorageDto described = admin.Describe();
         Assert.Equal((StorageLocation.FileSystem, Path.GetFullPath(Current)), (described.Current.Provider, described.Current.Location));

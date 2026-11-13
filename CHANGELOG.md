@@ -6,6 +6,15 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-13
+
+### Fixed
+
+- `AbpCluster.Storage`'s store test (`StorageAdmin.TestAsync`) writes its file at the store's top
+  (`.storage-test-{id}`) instead of in a folder of its own, so it no longer leaves an empty `.storage-test` folder in
+  each file-system store on every start. Remove one left by 0.4.0 if you like; nothing reads it. AbpCluster,
+  AbpCluster.Sites and AbpGateway don't change.
+
 ## [0.4.0] - 2026-11-13
 
 ### Added

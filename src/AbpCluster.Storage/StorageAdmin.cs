@@ -34,7 +34,8 @@ public sealed class StorageAdmin(StorageState state, IBlobContainerFactory conta
         foreach (string store in state.Options.Stores)
         {
             IBlobContainer container = containers.Create(store);
-            string name = $"{state.Options.TestFolder}/{Guid.NewGuid():N}";
+            // At the store's top, not in a folder of its own: the file system keeps an emptied folder.
+            string name = $"{state.Options.TestFolder}-{Guid.NewGuid():N}";
             byte[] written = Guid.NewGuid().ToByteArray();
             Stopwatch clock = Stopwatch.StartNew();
             try

@@ -44,7 +44,7 @@ public sealed partial class ClusterStorageOptions
     /// <summary>The cluster lock one check of the stored files holds while it runs.</summary>
     public string CheckLockName { get; set; } = "storage-files-check";
 
-    /// <summary>The folder a store's test writes its file to, and deletes it from.</summary>
+    /// <summary>The start of the name of the file a store's test writes at the store's top, and deletes (<c>.storage-test-{id}</c>).</summary>
     public string TestFolder { get; set; } = ".storage-test";
 
     /// <summary>The start of temporary files' names, for an upload going to a bucket or a file being copied.</summary>
