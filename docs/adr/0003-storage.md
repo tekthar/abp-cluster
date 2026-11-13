@@ -53,9 +53,9 @@ it; it doesn't replace it):
 
 - An app names its stores and lists its files; operators choose the storage in configuration and can move it while the
   site runs. A second app gets S3, Azure, keyless sign-in, the move and the check without writing them.
-- Taking over from the product it came from fixed a trap it had: on AWS with no keys (an IAM role), or with keys and no
-  address, ABP's S3 configuration was handed a null and refused it the first time a store was used. The package sets
-  only what's given.
+- Taking over from the product it came from fixed a trap it had: on AWS with no keys (an IAM role, the way its own AWS
+  guide sets it up), ABP's S3 configuration was handed a null key and refused it the first time a store was used. The
+  package sets only what's given.
 - The copy keeps its state in PostgreSQL, like the rest of AbpCluster; without a connection string it runs on the one
   server, with its state in memory.
 - Not here: what a backup holds and where it goes, attachments and their versions, who may read a file, retention, or

@@ -22,7 +22,7 @@ All notable changes to AbpCluster are written here. The format follows
   runs (`Storage:Previous`: reads fall back, deletes in both, `StorageCopier` checks hashes, one run per site, its
   state in PostgreSQL); `IStoredFiles` and `StoredFilesCheck`; `StorageAdmin` (describe, test each store, the copy);
   `IStorageEvents`; `FileKinds` (known by bytes) and `ServeSafely`. Unlike the code it came from, S3 on AWS with no
-  keys, or with keys and no server address, works: ABP's configuration is never handed a null.
+  keys (an IAM role) works: ABP's configuration is never handed a null key.
 
 ## [0.2.1] - 2026-11-12
 
