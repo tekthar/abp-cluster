@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpGateway: one origin in front of an ABP site's servers and its web app, on YARP. It only routes: the server's paths to the servers (several, checked for readiness, or every address a name resolves to), every other path to the web. An MCP session stays on the server that started it; uploads aren't limited here; server-sent events may stay quiet for 30 minutes. It sets HSTS, nosniff, a referrer policy and a content security policy, and believes X-Forwarded-For only from trusted proxies.</Description>
+    <PackageTags>abp;gateway;reverse-proxy;yarp;front-door;mcp;high-availability;security-headers</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
+  </ItemGroup>
+
+  <!-- The web SDK's implicit usings, for a library on the ASP.NET Core framework. -->
+  <ItemGroup>
+    <Using Include="Microsoft.AspNetCore.Builder" />
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="Microsoft.AspNetCore.Http" />
+    <Using Include="Microsoft.Extensions.Configuration" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbpGateway.Tests" />
+  </ItemGroup>
+
+</Project>

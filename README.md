@@ -110,6 +110,42 @@ Use it: run your app through `SiteRunner.RunAsync`, add `AbpClusterSitesModule` 
 call `SiteGuard.CheckAtStartAsync` after your migrations, and map `MapClusterSites()`. The guide is `docs/sites.md`, and
 the decisions are in `docs/adr/0002-two-sites.md`.
 
+## A gateway in front (AbpGateway)
+
+One origin for a site's servers and its web app, so the browser, cookies and the content security policy see one
+address. It's a small ASP.NET Core app on [YARP](https://github.com/dotnet/yarp), with no ABP module and no database.
+
+- **It only routes.** The server's paths (`/api`, `/connect`, `/.well-known`, `/mcp` by default, plus your own) go to
+  the servers, every other path to the web. A public path can reach the server under another, a webhook's address under
+  the API, say. Sign-in, limits and everything else stay in the servers.
+- **Several servers.** `Gateway:Server` names each, or one name every server answers to with `Gateway:ResolveServers`
+  (a Kubernetes headless Service), resolved every 5 seconds and patient while it has no address yet. With a readiness
+  path each server is checked every few seconds and left out after two failures; one that two requests in a row
+  couldn't reach is left out at once, for 10 seconds.
+- **MCP sessions stay put.** An MCP session lives in the memory of the server that started it, so the gateway puts that
+  server's address, encoded, before the session id it hands the client, and sends each request carrying it back there.
+  Any gateway replica can, since nothing is learned. Requests without a session go to the less busy of two servers.
+- **Long answers and big uploads.** Server-sent events may stay quiet for 30 minutes (`GatewayOptions.StreamIdle`), and
+  the request size isn't limited here: the servers know what each upload is for.
+- **Browser protections.** HSTS over HTTPS (`Gateway:Hsts:MaxAgeDays`), `nosniff`, a referrer policy, a content security
+  policy enforced (`Gateway:Csp`) and a fuller one reported only (`Gateway:CspReportOnly`), each yours to set.
+- **The visitor's address** from `X-Forwarded-For` and `X-Forwarded-Proto`, believed only from loopback and the networks
+  in `Gateway:TrustedProxies`, so a caller can't name its own.
+- **`/_gateway/health`** answers while the gateway runs, for a container's liveness probe.
+
+```csharp
+GatewayOptions options = new() { ReadinessPath = "/api/ready" };
+options.ServerPaths.Add("/plugins-web/{**rest}");
+options.Rewritten.Add(new GatewayRewrite("/hooks/git/{id}", "/api/hooks/git/{id}"));
+
+WebApplication app = GatewayApp.Build(args, options);
+app.Run();
+```
+
+```json
+{ "Gateway": { "Server": "http://server-1:8080, http://server-2:8080", "Web": "http://web:3000" } }
+```
+
 ## What it doesn't do
 
 - It doesn't notice when a holder's connection breaks while its work runs: the database lets the lock go, another

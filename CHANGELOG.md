@@ -6,6 +6,16 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **AbpGateway**, a new package: one origin for a site's servers and its web app, on YARP. `GatewayApp.Build(args,
+  options)` with `GatewayOptions`: the server's paths (`CommonServerPaths` plus your own), public paths rewritten to the
+  server's, a readiness path, and how long server-sent events may stay quiet. Several servers, named or resolved from DNS,
+  checked for readiness and left out after failed requests; MCP sessions kept on the server that started them; browser
+  protections (HSTS, nosniff, referrer policy, content security policy); `X-Forwarded-For` believed only from trusted
+  proxies; `/_gateway/health`. It comes from Toda's gateway, for Toda and Insight to share. AbpCluster and
+  AbpCluster.Sites don't change.
+
 ## [0.2.1] - 2026-11-12
 
 ### Fixed
