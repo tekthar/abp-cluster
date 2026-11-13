@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/AbpCluster/AbpCluster.csproj" />
     <Project Path="src/AbpCluster.Sites/AbpCluster.Sites.csproj" />
+    <Project Path="src/AbpCluster.Storage/AbpCluster.Storage.csproj" />
     <Project Path="src/AbpGateway/AbpGateway.csproj" />
   </Folder>
   <Folder Name="/tests/">

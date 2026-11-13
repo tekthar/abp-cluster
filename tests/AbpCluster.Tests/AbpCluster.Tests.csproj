@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AbpCluster\AbpCluster.csproj" />
     <ProjectReference Include="..\..\src\AbpCluster.Sites\AbpCluster.Sites.csproj" />
+    <ProjectReference Include="..\..\src\AbpCluster.Storage\AbpCluster.Storage.csproj" />
   </ItemGroup>
 
 </Project>

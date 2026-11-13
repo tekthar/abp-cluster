@@ -110,6 +110,49 @@ Use it: run your app through `SiteRunner.RunAsync`, add `AbpClusterSitesModule` 
 call `SiteGuard.CheckAtStartAsync` after your migrations, and map `MapClusterSites()`. The guide is `docs/sites.md`, and
 the decisions are in `docs/adr/0002-two-sites.md`.
 
+## Storage (AbpCluster.Storage)
+
+Where the app keeps its files, chosen by the operator in configuration, and moved while the site runs. It sits on ABP's
+blob storing: your code keeps using `IBlobContainer<T>`.
+
+- **File system, S3 or Azure**, from the `Storage` section. S3 is AWS by region or another server by address (MinIO,
+  Ceph, path-style); with no keys it signs in through AWS's own chain (an IAM role). Azure takes a connection string, or
+  the account's https address to sign in as the server (workload identity, a managed identity). Problems name your keys.
+- **Your stores keep their places**: a folder each in the file system (`{path}/host/{store}/{name}`, ABP's own layout),
+  or a prefix each in one bucket. Other containers go to the same storage.
+- **Moving to another storage**: name the old one under `Storage:Previous`. Saves go to the new one, a file not moved yet
+  is read from the old one, deletes happen in both, and `StorageCopier` copies every file across (one run for the whole
+  site, each file checked against its recorded hash before and after, what's there skipped, its state kept in
+  PostgreSQL for every server).
+- **The files your tables name**: register an `IStoredFiles` per part of your app. The copy walks them, and so does
+  `StoredFilesCheck`, which counts the files storage lacks: after a standby site takes over, or a restore.
+- **`StorageAdmin`** for your admin page or start-up check: where the storage is, a test of each store, the copy.
+- **`FileKinds`** knows an upload by its bytes (PNG, JPEG, WebP, GIF, PDF, ZIP), and `ServeSafely` sets the headers that
+  keep a served file from running as a page.
+
+```csharp
+[DependsOn(typeof(AbpClusterStorageModule))]
+public class MyModule : AbpModule
+{
+    public override void PreConfigureServices(ServiceConfigurationContext context) =>
+        PreConfigure<ClusterStorageOptions>(o =>
+        {
+            o.Stores.Add("attachments");                 // [BlobContainerName("attachments")]
+            o.FileSystemPath = "/var/lib/myapp/files";   // when Storage:FileSystem:Path isn't set
+        });
+
+    public override void ConfigureServices(ServiceConfigurationContext context) =>
+        context.Services.AddTransient<IStoredFiles, AttachmentFiles>();
+}
+```
+
+```json
+{ "Storage": { "Provider": "S3", "S3": { "Region": "eu-north-1", "Bucket": "myapp-files" },
+               "Previous": { "Provider": "FileSystem", "FileSystem": { "Path": "/var/lib/myapp/files" } } } }
+```
+
+The decisions are in `docs/adr/0003-storage.md`.
+
 ## A gateway in front (AbpGateway)
 
 One origin for a site's servers and its web app, so the browser, cookies and the content security policy see one

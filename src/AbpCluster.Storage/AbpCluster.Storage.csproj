@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpCluster.Storage: where an ABP app on .NET 10 keeps its files, set by configuration: the file system, S3 or a server that speaks it, or Azure Blob, signing in as the server where no key is given. Move to another storage while the site runs (reads fall back to the one being left; a copier checks each file's hash on the way), test each store, and walk every stored file for a backup or a check after a site takes over.</Description>
+    <PackageTags>abp;cluster;storage;blob;s3;minio;azure;file-system;migration;disaster-recovery</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Volo.Abp.BlobStoring.FileSystem" Version="$(AbpVersion)" />
+    <PackageReference Include="Volo.Abp.BlobStoring.Aws" Version="$(AbpVersion)" />
+    <PackageReference Include="Volo.Abp.BlobStoring.Azure" Version="$(AbpVersion)" />
+    <PackageReference Include="Volo.Abp.ExceptionHandling" Version="$(AbpVersion)" />
+    <!-- Azure Blob without a key: workload identity on AKS, a managed identity on a VM (DefaultAzureCredential). -->
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+    <!-- ABP's AWS provider pulls AWSSDK.Core 4.0.0.x, under GHSA-9cvc-h2w8-phrp (fixed in 4.0.3.3): pinned to a fixed one. -->
+    <PackageReference Include="AWSSDK.Core" Version="4.0.102.7" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.103.4" />
+    <PackageReference Include="Npgsql" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AbpCluster\AbpCluster.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbpCluster.Tests" />
+  </ItemGroup>
+
+</Project>
