@@ -6,6 +6,22 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-13
+
+### Added
+
+- **AbpCluster.Storage**, a new package: where an app keeps its files, set by configuration (`Storage`): the file
+  system, S3 (AWS, or MinIO and other servers, keyless through AWS's own chain) or Azure Blob (a connection string, or
+  the account's address to sign in as the server). `AbpClusterStorageModule` with `ClusterStorageOptions` (the app's
+  stores, the section, the file system's default folder, the copy's schema); moving to another storage while the site
+  runs (`Storage:Previous`: reads fall back, deletes in both, `StorageCopier` checks hashes, one run per site, its
+  state in PostgreSQL); `IStoredFiles` and `StoredFilesCheck`; `StorageAdmin` (describe, test each store, the copy);
+  `IStorageEvents`; `FileKinds` (known by bytes) and `ServeSafely`. Unlike the code it came from, S3 on AWS with no
+  keys (an IAM role) works: ABP's configuration is never handed a null key. AbpCluster, AbpCluster.Sites and AbpGateway don't
+  change.
+
+## [0.3.0] - 2026-11-13
+
 ### Added
 
 - **AbpGateway**, a new package: one origin for a site's servers and its web app, on YARP. `GatewayApp.Build(args,
@@ -15,14 +31,6 @@ All notable changes to AbpCluster are written here. The format follows
   protections (HSTS, nosniff, referrer policy, content security policy); `X-Forwarded-For` believed only from trusted
   proxies; `/_gateway/health`. It comes from Toda's gateway, for Toda and Insight to share. AbpCluster and
   AbpCluster.Sites don't change.
-- **AbpCluster.Storage**, a new package: where an app keeps its files, set by configuration (`Storage`): the file
-  system, S3 (AWS, or MinIO and other servers, keyless through AWS's own chain) or Azure Blob (a connection string, or
-  the account's address to sign in as the server). `AbpClusterStorageModule` with `ClusterStorageOptions` (the app's
-  stores, the section, the file system's default folder, the copy's schema); moving to another storage while the site
-  runs (`Storage:Previous`: reads fall back, deletes in both, `StorageCopier` checks hashes, one run per site, its
-  state in PostgreSQL); `IStoredFiles` and `StoredFilesCheck`; `StorageAdmin` (describe, test each store, the copy);
-  `IStorageEvents`; `FileKinds` (known by bytes) and `ServeSafely`. Unlike the code it came from, S3 on AWS with no
-  keys (an IAM role) works: ABP's configuration is never handed a null key.
 
 ## [0.2.1] - 2026-11-12
 
