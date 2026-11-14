@@ -189,6 +189,47 @@ app.Run();
 { "Gateway": { "Server": "http://server-1:8080, http://server-2:8080", "Web": "http://web:3000" } }
 ```
 
+## Outgoing webhooks (AbpWebhooks)
+
+Signed webhooks from an ABP app, sent reliably from every server. The application keeps its webhooks (where each sends,
+which events, who may change them), decides what each delivery says, and queues it; AbpWebhooks keeps the queue in the
+application's own database and sends it. It doesn't need AbpCluster: it can be used alone.
+
+- **Queued once.** A delivery's id comes from the event's and the webhook's (`WebhookIds.Delivery`, a name-based UUID),
+  so an event heard twice from an outbox is queued once: `WebhookQueue.EnqueueAsync` leaves one already there alone.
+- **Signed.** A POST of the payload with `X-Webhook-Event`, `X-Webhook-Delivery`, `X-Webhook-Timestamp` and
+  `X-Webhook-Signature: sha256=` the HMAC-SHA256 of `{timestamp}.{body}` with the webhook's secret. Each header can go
+  under more prefixes too (`WebhookSendingOptions.HeaderPrefixes`), for receivers set up with older names. A receiver
+  checks with `WebhookSignature.Verify`, which also refuses a delivery more than five minutes old.
+- **Every server, each delivery once.** The worker on each server claims due deliveries by moving their next attempt on
+  (a two-minute lease), so two servers never send the same one; `WebhookWakeup.Signal` wakes it at once, and an
+  `IWebhookWakeOthers` of yours wakes the other servers.
+- **Retried, then given up.** Anything but a 2xx is tried again after 1, 5 and 15 minutes, 1 and 4 hours, then fails;
+  the status and the start of a refusal are kept. A delivery to a webhook that's off waits while it's off; one to a
+  removed webhook fails. `WebhookQueue.RedeliverAsync` sends one again as a new delivery. Sent and failed ones are kept
+  30 days.
+
+```csharp
+[DependsOn(typeof(AbpWebhooksModule))]
+public class MyAppModule : AbpModule
+{
+    public override void ConfigureServices(ServiceConfigurationContext context)
+    {
+        context.Services.AddAbpDbContext<MyDbContext>(o => o.ReplaceDbContext<IWebhooksDbContext>());
+        context.Services.AddTransient<IWebhookEndpoints, MyWebhookEndpoints>(); // url, secret, enabled for a webhook id
+        // The client goes wherever an admin typed: give it your guard (no private addresses, no redirects).
+        context.Services.AddHttpClient("Webhooks", c => c.Timeout = TimeSpan.FromSeconds(10));
+    }
+}
+
+// In MyDbContext (which implements IWebhooksDbContext): a table made before keeps its names.
+builder.ConfigureWebhookDeliveries("webhook_deliveries", columns: new("ProjectId", "RecordId", "RecordKey"));
+
+// Where something happened:
+await queue.EnqueueAsync([new WebhookDelivery(WebhookIds.Delivery(eventId, hook.Id), hook.Id, "order.paid",
+    scopeId: shopId, subjectId: order.Id, subject: order.Number, payload)], ct);
+```
+
 ## What it doesn't do
 
 - It doesn't notice when a holder's connection breaks while its work runs: the database lets the lock go, another

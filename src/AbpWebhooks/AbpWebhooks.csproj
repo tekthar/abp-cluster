@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpWebhooks: signed outgoing webhooks for an ABP app on .NET 10 and EF Core. A queue in the application's own database, delivery ids that stay the same however often an event is heard, a worker on each server that claims, POSTs and signs each delivery (X-Webhook-Signature, HMAC-SHA256 of the timestamp and body), retries after 1, 5 and 15 minutes, 1 and 4 hours, and prunes; redelivery on request; and the receiver's check. The application keeps its webhooks, what it sends and who may see it.</Description>
+    <PackageTags>abp;webhooks;outbox;hmac;signature;retries;efcore;postgresql</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="$(AbpVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbpWebhooks.Tests" />
+  </ItemGroup>
+
+</Project>

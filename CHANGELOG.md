@@ -6,6 +6,15 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `AbpWebhooks`, signed outgoing webhooks, a package of its own that doesn't need AbpCluster: the delivery queue in the
+  application's context (`IWebhooksDbContext`, `WebhookDeliveriesModel.ConfigureWebhookDeliveries`, with the column
+  names a table made before had), `WebhookQueue` (queue once per event and webhook, redeliver), the worker on each
+  server (claims with a lease, POSTs and signs under each of `WebhookSendingOptions.HeaderPrefixes`, retries after 1,
+  5 and 15 minutes, 1 and 4 hours, prunes after 30 days), `WebhookWakeup` and `IWebhookWakeOthers`, `IWebhookEndpoints`
+  the application implements, `WebhookIds.Delivery`, and `WebhookSignature.Sign`/`Verify` for receivers.
+
 ## [0.4.1] - 2026-11-13
 
 ### Fixed

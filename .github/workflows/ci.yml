@@ -1,5 +1,5 @@
 # Pushes to main and pull requests run the checks: build, the tests (against PostgreSQL), and pack. A v<version> tag runs
-# the checks, then pushes the packages (AbpCluster, AbpCluster.Sites, AbpCluster.Storage, AbpGateway) to nuget.org through Trusted Publishing (a one-hour
+# the checks, then pushes the packages (AbpCluster, AbpCluster.Sites, AbpCluster.Storage, AbpGateway, AbpWebhooks) to nuget.org through Trusted Publishing (a one-hour
 # key nuget.org gives this workflow, no stored secret) and makes a GitHub release.
 
 name: CI
@@ -64,7 +64,7 @@ jobs:
       - name: The tag is the packages' version
         run: |
           version="${GITHUB_REF_NAME#v}"
-          for id in AbpCluster AbpCluster.Sites AbpCluster.Storage AbpGateway; do
+          for id in AbpCluster AbpCluster.Sites AbpCluster.Storage AbpGateway AbpWebhooks; do
             test -f "artifacts/$id.$version.nupkg" || { echo "No $id.$version.nupkg: the tag and VersionPrefix/VersionSuffix differ."; ls artifacts; exit 1; }
           done
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
