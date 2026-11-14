@@ -24,6 +24,8 @@ distributed lock on it.
 - **Without a database** (a test host with no connection string) every lock is granted, with a warning in the log: one
   process is a cluster of one.
 
+Coming from ABP's module template? [Where ABP's layers are in this repository](docs/abp-layers.md).
+
 ## Use it
 
 ```bash
