@@ -6,6 +6,11 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-14
+
+A new package, `AbpWebhooks`, for signed outgoing webhooks. AbpCluster, AbpCluster.Sites, AbpCluster.Storage and
+AbpGateway don't change.
+
 ### Added
 
 - `AbpWebhooks`, signed outgoing webhooks, a package of its own that doesn't need AbpCluster: the delivery queue in the
