@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpLanguages.HttpApi: AbpLanguages' API over HTTP, under a route prefix the host sets. Anyone reads the enabled languages and a language's texts (cached for good by version, answered by ETag otherwise), as a sign-in page needs them; the host's admins add, change and remove languages, edit texts, and export and import a catalog for translators.</Description>
+    <PackageTags>abp;localization;languages;translations;i18n;api;aspnetcore</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\AbpLanguages\AbpLanguages.csproj" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="$(AbpVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbpLanguages.Tests" />
+  </ItemGroup>
+
+</Project>

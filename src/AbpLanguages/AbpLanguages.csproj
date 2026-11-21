@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpLanguages: a site's languages and translations for ABP apps on .NET 10. Languages as data (direction, fallback, on or off, the default), the texts that ship with your code translated or reworded by your admins with a hash of the source they were made from, chains for a request's language, and each language's merged texts cached on every server by version, without a distributed cache. Your tables, through ILanguagesDbContext.</Description>
+    <PackageTags>abp;localization;languages;translations;i18n;rtl;efcore</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.EntityFrameworkCore" Version="$(AbpVersion)" />
+    <PackageReference Include="Volo.Abp.Users.Abstractions" Version="$(AbpVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbpLanguages.Tests" />
+  </ItemGroup>
+
+</Project>

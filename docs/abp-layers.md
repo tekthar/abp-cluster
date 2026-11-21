@@ -2,8 +2,9 @@
 
 The packages here are infrastructure, like ABP's own `Volo.Abp.DistributedLocking` or `Volo.Abp.BlobStoring`, not an
 application module, so there are no Domain or Application layers to map. Each is one package and one module
-(AbpGateway is a plain ASP.NET Core app with no module), and AbpCluster.Storage has an HttpApi package beside it. This
-page says which ABP part each builds on or replaces.
+(AbpGateway is a plain ASP.NET Core app with no module), and AbpCluster.Storage and AbpLanguages each have an HttpApi
+package beside them. AbpLanguages is the nearest to a module: its tables are yours, through an `I*DbContext`. This page
+says which ABP part each builds on or replaces.
 
 | Package | ABP's counterpart | How it fits |
 |---|---|---|
@@ -12,6 +13,8 @@ page says which ABP part each builds on or replaces.
 | `AbpCluster.Storage` | `Volo.Abp.BlobStoring` with its FileSystem, AWS and Azure providers | `AbpClusterStorageModule` configures ABP's BLOB containers from settings (with keyless sign-in), and adds what BlobStoring doesn't: reading from the previous store while files are copied, a hash-checked copier, the store test, the inventory of stored files (`IStoredFiles`), a check of the files storage lacks after a takeover or a restore (`StoredFilesCheck`), and knowing an upload by its bytes (`FileKinds`). It depends on `AbpCluster`: the copy and the check each hold a cluster lock |
 | `AbpCluster.Storage.HttpApi` | An ABP module's `*.HttpApi` layer: controllers over the module's services | `AbpClusterStorageHttpApiModule`: one controller over `StorageAdmin` (the storage, a test of each store, the copy), under the route prefix the host sets, behind the host's policy or its `IStorageRights`. Plain controllers, not `[RemoteService]` application services, so ABP makes no dynamic proxies for them |
 | `AbpWebhooks` | None in ABP's open modules (ASP.NET Boilerplate, ABP's predecessor, had webhooks; ABP's outbox carries events between services, not to outside addresses) | `AbpWebhooksModule`, on ABP's EF Core alone (no AbpCluster). The queue's table goes through `IWebhooksDbContext` (`ReplaceDbContext`) and `modelBuilder.ConfigureWebhookDeliveries(table, schema, columns)` in your context and migrations, as an ABP module's would. Work runs in ABP units of work, and sending uses a named `IHttpClientFactory` client you give your guard. Your webhooks are yours (`IWebhookEndpoints`) |
+| `AbpLanguages` | ABP's Language Management module (commercial tier). ABP's open localization reads resource files built into the app | `AbpLanguagesModule`, on ABP's EF Core alone (no AbpCluster). The tables go through `ILanguagesDbContext` (`ReplaceDbContext`) and `modelBuilder.ConfigureLanguages(schema, tables)` in your context and migrations, as an ABP module's would; `LanguagesSeeder` runs through ABP's data seeding. Your texts are yours (`ITextCatalogSource`) |
+| `AbpLanguages.HttpApi` | An ABP module's `*.HttpApi` layer | `AbpLanguagesHttpApiModule`: plain controllers over `LanguagesService` and `LanguagesCache`, under the route prefix the host sets, behind the host's policy or its `ILanguagesRights` |
 | `AbpGateway` | None | A YARP app, `GatewayApp.Build(args, options)`; it routes to your ABP servers and has no ABP dependency |
 
 ## What works the ABP way
@@ -22,7 +25,7 @@ page says which ABP part each builds on or replaces.
   your module's `[DependsOn]`.
 - **ABP's abstractions are used, not bypassed:** the lock is ABP's `IAbpDistributedLock` underneath, and files go
   through ABP's BLOB containers, so code written against ABP's interfaces keeps working.
-- **The database:** AbpWebhooks follows ABP's pattern (an `I*DbContext` you replace, a `Configure*` extension).
+- **The database:** AbpWebhooks and AbpLanguages follow ABP's pattern (an `I*DbContext` you replace, a `Configure*` extension).
 
 ## Where it differs, and why
 

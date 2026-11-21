@@ -5,11 +5,14 @@
     <Project Path="src/AbpCluster.Storage/AbpCluster.Storage.csproj" />
     <Project Path="src/AbpCluster.Storage.HttpApi/AbpCluster.Storage.HttpApi.csproj" />
     <Project Path="src/AbpGateway/AbpGateway.csproj" />
+    <Project Path="src/AbpLanguages/AbpLanguages.csproj" />
+    <Project Path="src/AbpLanguages.HttpApi/AbpLanguages.HttpApi.csproj" />
     <Project Path="src/AbpWebhooks/AbpWebhooks.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AbpCluster.Tests/AbpCluster.Tests.csproj" />
     <Project Path="tests/AbpGateway.Tests/AbpGateway.Tests.csproj" />
+    <Project Path="tests/AbpLanguages.Tests/AbpLanguages.Tests.csproj" />
     <Project Path="tests/AbpWebhooks.Tests/AbpWebhooks.Tests.csproj" />
   </Folder>
 </Solution>

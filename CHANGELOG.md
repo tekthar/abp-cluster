@@ -6,6 +6,26 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **`AbpLanguages` and `AbpLanguages.HttpApi`**, a site's languages and translations, moved here from a repository of
+  their own before their first release (nothing was published from it). They keep their names and modules, don't
+  depend on AbpCluster, and are released with this repository's version, so their first version on nuget.org is this
+  one. AbpCluster, AbpCluster.Sites, AbpCluster.Storage, AbpCluster.Storage.HttpApi, AbpGateway and AbpWebhooks don't
+  change.
+  - `AbpLanguages`:
+    - languages as data;
+    - chains (`LanguageChain`, `LanguagesSnapshot.ChainForHeader`);
+    - catalogs from `ITextCatalogSource` (and `EmbeddedTextCatalogSource`), with generations;
+    - admins' texts with source hashes and an ICU argument check;
+    - bundles cached on every server by one row's version (`LanguagesCache`);
+    - the admins' operations (`LanguagesService`), `ILanguagesEvents`, `LanguagesSeeder`;
+    - the tables through `ILanguagesDbContext` and `ConfigureLanguages(schema, tables)`.
+  - `AbpLanguages.HttpApi`: the API under the host's prefix. Anyone reads the enabled languages and a language's texts
+    (versioned and cached for good, else by ETag); admins, by the host's policy or `ILanguagesRights`, change languages
+    and texts, and export and import catalogs.
+  - Their tests read the server from `ABP_CLUSTER_TEST_POSTGRES`, as the others here do.
+
 ## [0.6.0] - 2026-11-21
 
 A new package, `AbpCluster.Storage.HttpApi`: the storage's admin API over HTTP, so an app's admin page needs no
