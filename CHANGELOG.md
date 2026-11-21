@@ -6,6 +6,11 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-21
+
+Two new packages, `AbpLanguages` and `AbpLanguages.HttpApi`: a site's languages and translations. The other packages
+are as they were in 0.6.0.
+
 ### Added
 
 - **`AbpLanguages` and `AbpLanguages.HttpApi`**, a site's languages and translations, moved here from a repository of
