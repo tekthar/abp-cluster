@@ -6,6 +6,29 @@ All notable changes to AbpCluster are written here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-21
+
+A new package, `AbpCluster.Storage.HttpApi`: the storage's admin API over HTTP, so an app's admin page needs no
+controller of its own. AbpCluster, AbpCluster.Sites, AbpGateway and AbpWebhooks don't change.
+
+### Added
+
+- **`AbpCluster.Storage.HttpApi`** (`AbpClusterStorageHttpApiModule`), under the route prefix the host sets
+  (`StorageHttpOptions.RoutePrefix`, `api/storage` by default):
+  - `GET {prefix}`: where the storage is (`StorageDto`: the provider and its place, never a key), its stores, and the
+    storage being left.
+  - `POST {prefix}/test`: each store written, read back and deleted (`StorageTestDto`).
+  - `GET {prefix}/copy`: the copy as every server sees it (`StorageCopyDto`).
+  - `POST {prefix}/copy`: starts it; 409 when no storage is being left. It's the one action marked
+    `[StorageSensitive]`, for the host's step-up through `StorageHttpOptions.Sensitive`.
+
+  Storage stays set in configuration: nothing here changes it. Who may call it is the host's
+  `StorageHttpOptions.Policy` (its site-admin policy) or its own `IStorageRights`. With neither, everyone is refused,
+  so a host that forgets hands the storage to no one. No transaction is held open around a request. The actions can go
+  in an OpenAPI document of their own (`OpenApiGroupName`).
+- **`StorageErrorCodes`** in AbpCluster.Storage: `Forbidden`, and `NoPrevious`, which `StorageCopier.StartAsync`'s
+  refusal now carries. The API maps them to 403 and 409.
+
 ## [0.5.0] - 2026-11-14
 
 A new package, `AbpWebhooks`, for signed outgoing webhooks. AbpCluster, AbpCluster.Sites, AbpCluster.Storage and
