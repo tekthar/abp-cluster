@@ -137,7 +137,8 @@ public sealed class StorageCopier(IRootServiceProvider root, StorageState state,
     {
         if (state.Previous is null)
         {
-            throw new UserFriendlyException($"There's no previous storage to copy from: {_options.PreviousSection} names the storage being left.");
+            throw new UserFriendlyException($"There's no previous storage to copy from: {_options.PreviousSection} names the storage being left.",
+                StorageErrorCodes.NoPrevious);
         }
 
         IAsyncDisposable? held = await locks.TryTakeAsync(_options.CopyLockName, cancellationToken);

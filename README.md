@@ -129,6 +129,10 @@ blob storing: your code keeps using `IBlobContainer<T>`.
 - **The files your tables name**: register an `IStoredFiles` per part of your app. The copy walks them, and so does
   `StoredFilesCheck`, which counts the files storage lacks: after a standby site takes over, or a restore.
 - **`StorageAdmin`** for your admin page or start-up check: where the storage is, a test of each store, the copy.
+- **`AbpCluster.Storage.HttpApi`**, the admin API for that page, so you write no controller: `GET {prefix}` (where the
+  storage is, without a key), `POST {prefix}/test`, and `GET`/`POST {prefix}/copy`. It's read only; storage stays in
+  configuration. You give the route prefix, your site-admin policy (or your own `IStorageRights`; with neither, no one
+  is let in) and what starting a copy needs besides, such as a step-up.
 - **`FileKinds`** knows an upload by its bytes (PNG, JPEG, WebP, GIF, PDF, ZIP), and `ServeSafely` sets the headers that
   keep a served file from running as a page.
 
@@ -151,6 +155,20 @@ public class MyModule : AbpModule
 ```json
 { "Storage": { "Provider": "S3", "S3": { "Region": "eu-north-1", "Bucket": "myapp-files" },
                "Previous": { "Provider": "FileSystem", "FileSystem": { "Path": "/var/lib/myapp/files" } } } }
+```
+
+```csharp
+[DependsOn(typeof(AbpClusterStorageHttpApiModule))]
+public class MyHttpApiModule : AbpModule
+{
+    public override void ConfigureServices(ServiceConfigurationContext context) =>
+        Configure<StorageHttpOptions>(o =>
+        {
+            o.RoutePrefix = "api/admin/storage";
+            o.Policy = "SiteAdmin";                                          // who may see, test and copy
+            o.Sensitive = action => action.Filters.Add(new MyStepUpFilter()); // on POST copy
+        });
+}
 ```
 
 The decisions are in `docs/adr/0003-storage.md`.

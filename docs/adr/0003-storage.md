@@ -49,6 +49,16 @@ it; it doesn't replace it):
 - **`FileKinds`**: PNG, JPEG, WebP, GIF, PDF and ZIP known by their first bytes, and `ServeSafely` for the headers that
   keep a served file from being sniffed or run (`nosniff`, a sandbox with nothing allowed, a download's name).
 
+## Amendment, 0.6.0: the admin API as a package
+
+The decision above left the endpoints to the app ("the app keeps its endpoints and who may call them"). A second app
+then wanted the same admin page from the shared screens, which needs one API, so `AbpCluster.Storage.HttpApi` serves it.
+It follows the other packages' admin APIs (AbpAi.HttpApi): the host sets the route prefix, the policy, what a sensitive
+action needs, and the OpenAPI group. It's read only (a view, a test, the copy), because storage is set in configuration
+and never from a page. Who may call it is a policy or `IStorageRights` of the host's, and the default refuses everyone
+when neither is given, since storage is the site's alone. Starting a copy is the one sensitive action: it touches every
+stored file and runs on after its request. `StorageAdmin` stays for an app that keeps its own endpoints.
+
 ## Consequences
 
 - An app names its stores and lists its files; operators choose the storage in configuration and can move it while the

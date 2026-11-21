@@ -3,6 +3,7 @@
     <Project Path="src/AbpCluster/AbpCluster.csproj" />
     <Project Path="src/AbpCluster.Sites/AbpCluster.Sites.csproj" />
     <Project Path="src/AbpCluster.Storage/AbpCluster.Storage.csproj" />
+    <Project Path="src/AbpCluster.Storage.HttpApi/AbpCluster.Storage.HttpApi.csproj" />
     <Project Path="src/AbpGateway/AbpGateway.csproj" />
     <Project Path="src/AbpWebhooks/AbpWebhooks.csproj" />
   </Folder>

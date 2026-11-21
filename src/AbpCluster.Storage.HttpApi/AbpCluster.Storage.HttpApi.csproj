@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>AbpCluster.Storage.HttpApi: AbpCluster.Storage's admin API over HTTP, under a route prefix the host sets. Where the storage is (no secrets), a test of each store, and the copy from the storage being left: how it stands, and starting it. Storage stays set in configuration, never from a page. The host says who may manage it and what starting a copy needs besides.</Description>
+    <PackageTags>abp;cluster;storage;blob;admin;api;aspnetcore</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\AbpCluster.Storage\AbpCluster.Storage.csproj" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="$(AbpVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AbpCluster.Tests" />
+  </ItemGroup>
+
+</Project>
